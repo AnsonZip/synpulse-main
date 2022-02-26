@@ -1,35 +1,56 @@
 import { NextFunction } from 'connect';
 import { Request, Response } from 'express';
-import { Kafka } from 'kafkajs';
-//import Kafka from 'node-rdkafka';
+import { createProducer, createConsumer } from '../utils/kafka';
 
 export default class TransactionController {
-  public consume = async (req: Request, res: Response, next: NextFunction) => {
+  public producer = async (req: Request, res: Response, next: NextFunction) => {
     try {
-
-      const kafka = new Kafka({
-        clientId: 'my-app',
-        brokers: ['pkc-4nxnd.asia-east2.gcp.confluent.cloud:9092'],
-        sasl: {
-          mechanism: 'plain',
-          username: 'FHEQH3N2QHTV5BFX',
-          password: 'TaV8UJjAz1C4FIhdhp5dXist4MPsvURCqkOhAFqTSvGNkrhmx1pZOoi7yDSrljyp'
+      const producer = await createProducer((err: any, report: any) => {
+        if (err) {
+          console.warn('Error producing', err)
+        } else {
+          const { topic, partition, value } = report;
+          console.log(`Successfully produced record to topic "${topic}" partition ${partition} ${value}`);
         }
       });
 
-      const consumer = kafka.consumer({ groupId: 'test-group' });
-      await consumer.connect()
-      await consumer.subscribe({ topic: 'test-topic', fromBeginning: true })
+      for (let idx = 0; idx < 10; ++idx) {
+        const key = 'alice';
+        const value = Buffer.from(JSON.stringify({ count: idx }));
 
-      await consumer.run({
-        eachMessage: async ({ topic, partition, message }) => {
-          console.log({
-            partition,
-            offset: message.offset,
-            value: message.value ? message.value.toString() : null,
-          })
-        },
-      })
+        console.log(`Producing record ${key}\t${value}`);
+
+        producer.produce('test1', -1, value, key);
+      }
+
+      producer.flush(10000, () => {
+        producer.disconnect();
+      });
+
+      return res.status(200).send({ msg: 'success' });
+    } catch (err) {
+      console.log(err)
+      return res.status(500).send(err);
+    }
+  }
+
+
+
+
+  public consume = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      let seen = 0;
+      const consumer = await createConsumer(({ key, value, partition, offset }: any) => {
+        console.log(`Consumed record with key ${key} and value ${value} of partition ${partition} @ offset ${offset}. Updated total count to ${++seen}`);
+      });
+
+      consumer.subscribe(['P-0123456789_CHF']);
+      consumer.consume();
+
+      process.on('SIGINT', () => {
+        console.log('\nDisconnecting consumer ...');
+        consumer.disconnect();
+      });
 
       return res.status(200).send({ msg: 'success' });
     } catch (err) {
@@ -37,45 +58,8 @@ export default class TransactionController {
     }
   }
 
-  // public consume = async (req: Request, res: Response, next: NextFunction) => {
-  //   try {
-  //     let seen = 0;
-  //     const consumer = await this.createConsumer(({ key, value, partition, offset }: any) => {
-  //       console.log(`Consumed record with key ${key} and value ${value} of partition ${partition} @ offset ${offset}. Updated total count to ${++seen}`);
-  //     });
-
-  //     consumer.subscribe(['P-0123456789_CHF']);
-  //     consumer.consume();
-
-  //     process.on('SIGINT', () => {
-  //       console.log('\nDisconnecting consumer ...');
-  //       consumer.disconnect();
-  //     });
-
-  //     return res.status(200).send({ msg: 'success' });
-  //   } catch (err) {
-  //     return res.status(500).send(err);
-  //   }
-  // }
-
-  // createConsumer(onData: any): Promise<Kafka.KafkaConsumer> {
-  //   const consumer = new Kafka.KafkaConsumer({
-  //     'bootstrap.servers': 'pkc-4nxnd.asia-east2.gcp.confluent.cloud:9092',
-  //     'sasl.username': 'FHEQH3N2QHTV5BFX',
-  //     'sasl.password': 'TaV8UJjAz1C4FIhdhp5dXist4MPsvURCqkOhAFqTSvGNkrhmx1pZOoi7yDSrljyp',
-  //     'security.protocol': 'sasl_ssl',
-  //     'sasl.mechanisms': 'PLAIN',
-  //     'group.id': 'node-example-group-1'
-  //   }, {
-  //     'auto.offset.reset': 'earliest'
-  //   });
-
-  //   return new Promise((resolve, reject) => {
-  //     consumer
-  //       .on('ready', () => resolve(consumer))
-  //       .on('data', onData);
-
-  //     consumer.connect();
-  //   });
-  // }
+  public healthCheck = async (req: Request, res: Response, next: NextFunction) => {
+    res.status(200).send({ msg: 'pong' });
+    return;
+  }
 }
