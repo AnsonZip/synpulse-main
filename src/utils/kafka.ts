@@ -1,4 +1,5 @@
 import Kafka from 'node-rdkafka';
+import { kafkaConfig } from '../config/dev.config';
 
 export default class KafkaHelper {
 
@@ -11,11 +12,11 @@ export default class KafkaHelper {
 
 const ERR_TOPIC_ALREADY_EXISTS = 36;
 
-function createProducer( onDeliveryReport: any): Promise<Kafka.Producer> {
+function createProducer(onDeliveryReport: any): Promise<Kafka.Producer> {
   const producer = new Kafka.Producer({
-    'bootstrap.servers': 'pkc-4nxnd.asia-east2.gcp.confluent.cloud:9092',
-    'sasl.username': 'FHEQH3N2QHTV5BFX',
-    'sasl.password': 'TaV8UJjAz1C4FIhdhp5dXist4MPsvURCqkOhAFqTSvGNkrhmx1pZOoi7yDSrljyp',
+    'bootstrap.servers': kafkaConfig.servers,
+    'sasl.username': kafkaConfig.username,
+    'sasl.password': kafkaConfig.password,
     'security.protocol': 'sasl_ssl',
     'sasl.mechanisms': 'PLAIN',
     'dr_msg_cb': true
@@ -35,9 +36,9 @@ function createProducer( onDeliveryReport: any): Promise<Kafka.Producer> {
 
 function createConsumer(onData: any): Promise<Kafka.KafkaConsumer> {
   const consumer = new Kafka.KafkaConsumer({
-    'bootstrap.servers': 'pkc-4nxnd.asia-east2.gcp.confluent.cloud:9092',
-    'sasl.username': 'FHEQH3N2QHTV5BFX',
-    'sasl.password': 'TaV8UJjAz1C4FIhdhp5dXist4MPsvURCqkOhAFqTSvGNkrhmx1pZOoi7yDSrljyp',
+    'bootstrap.servers': kafkaConfig.servers,
+    'sasl.username': kafkaConfig.username,
+    'sasl.password': kafkaConfig.password,
     'security.protocol': 'sasl_ssl',
     'sasl.mechanisms': 'PLAIN',
     'group.id': 'node-example-group-1'
@@ -56,9 +57,9 @@ function createConsumer(onData: any): Promise<Kafka.KafkaConsumer> {
 
 function ensureTopicExists(topic: string) {
   const adminClient = Kafka.AdminClient.create({
-    'bootstrap.servers': 'pkc-4nxnd.asia-east2.gcp.confluent.cloud:9092',
-    'sasl.username': 'FHEQH3N2QHTV5BFX',
-    'sasl.password': 'TaV8UJjAz1C4FIhdhp5dXist4MPsvURCqkOhAFqTSvGNkrhmx1pZOoi7yDSrljyp',
+    'bootstrap.servers': kafkaConfig.servers,
+    'sasl.username': kafkaConfig.username,
+    'sasl.password': kafkaConfig.password,
     'security.protocol': 'sasl_ssl',
     'sasl.mechanisms': 'PLAIN'
   });

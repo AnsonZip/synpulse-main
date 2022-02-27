@@ -5,11 +5,8 @@
   "main": "./build/index.js",
   "scripts": {
     "build": "tsc",
-    "dev": "ts-node ./src/index.ts",
-    "start2": "node",
     "start": "node -r ts-node/register ./src/index.ts",
     "lint": "tslint --project tslint.json",
-    "build-watch": "tsc --watch",
     "watch": "nodemon",
     "test": "mocha --require ts-node/register tests/**/*.ts --timeout 20000",
     "doc": "typedoc --out docs --mode file --name \"Typescript + Express + Firestore - API Rest\" --exclude tests/**/*.ts"

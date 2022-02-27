@@ -5,13 +5,12 @@ import { getRandomInt } from '../utils/helper';
 import { v4 as uuidv4 } from 'uuid';
 import uniqid from 'uniqid';
 import Transaction from '../models/transaction.model';
+import { currencyList } from '../config/dev.config';
 
 export default class TransactionController {
   public producer = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const topic = req.cookies.identity;
-      const currencyList: string[] = ['GBP', 'EUR', 'CHF'];
-
       const promises = currencyList.map(async (currency) => {
         const currencyAccount = `${topic}_${currency}`;
         await ensureTopicExists(currencyAccount);
@@ -61,7 +60,6 @@ export default class TransactionController {
   public consume = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const identity = req.cookies.identity;
-      const currencyList: string[] = ['GBP', 'EUR', 'CHF'];
       const currencyAccounts = currencyList.map(currency => {
         return `${identity}_${currency}`;
       });
@@ -75,7 +73,6 @@ export default class TransactionController {
 
         console.log(`Consumed record with key ${key} and value ${value} of partition ${partition} @ offset ${offset}. Updated total count to ${++seen}`);
       });
-
 
       consumer.subscribe(currencyAccounts);
       consumer.consume();
