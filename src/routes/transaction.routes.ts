@@ -6,7 +6,7 @@ import auth from '../middleware/jwt.middlewate';
 const router: Router = Router();
 
 router.get('/ping', auth, transactionController.healthCheck);
-router.post('/producer', transactionController.producer);
-router.post('/consume', transactionController.consume);
+router.post('/producer', auth, transactionController.producer);
+router.post('/consume', auth, transactionController.consume);
 
 export default router;

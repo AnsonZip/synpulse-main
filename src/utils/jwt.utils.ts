@@ -11,7 +11,6 @@ const authStrategy = {
 
 passport.use('authenicate', new JwtStrategy(authStrategy, function (jwt_payload, done) {
   try {
-    console.log('jwt', jwt_payload);
     done(null, jwt_payload);
   } catch (err) {
     done(err);

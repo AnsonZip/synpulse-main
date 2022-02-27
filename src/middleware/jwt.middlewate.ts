@@ -1,8 +1,9 @@
 import passport from 'passport';
 import { Request, Response, NextFunction } from 'express';
+import { IJWTPayloadModel } from '../models/interfaces/common.interface';
 
 async function auth(req: Request, res: Response, next: NextFunction) {
-  let execAuth = (req: Request, res: Response): Promise<string> => {
+  let execAuth = (req: Request, res: Response): Promise<IJWTPayloadModel> => {
     return new Promise((resolve, reject) => {
       passport.authenticate('authenicate', (err, jwt_payload: any) => {
         if (err) {
@@ -19,9 +20,10 @@ async function auth(req: Request, res: Response, next: NextFunction) {
 
   try {
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-      const clientName = await execAuth(req, res);
+      const jwt_payload = await execAuth(req, res);
 
-      if (clientName) {
+      if (jwt_payload) {
+        req.cookies = jwt_payload;
         return next();
       }
     }

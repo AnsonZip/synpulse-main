@@ -9,6 +9,8 @@ export default class KafkaHelper {
   // }
 }
 
+const ERR_TOPIC_ALREADY_EXISTS = 36;
+
 function createProducer( onDeliveryReport: any): Promise<Kafka.Producer> {
   const producer = new Kafka.Producer({
     'bootstrap.servers': 'pkc-4nxnd.asia-east2.gcp.confluent.cloud:9092',
@@ -52,4 +54,33 @@ function createConsumer(onData: any): Promise<Kafka.KafkaConsumer> {
   });
 }
 
-export { createProducer, createConsumer }
+function ensureTopicExists(topic: string) {
+  const adminClient = Kafka.AdminClient.create({
+    'bootstrap.servers': 'pkc-4nxnd.asia-east2.gcp.confluent.cloud:9092',
+    'sasl.username': 'FHEQH3N2QHTV5BFX',
+    'sasl.password': 'TaV8UJjAz1C4FIhdhp5dXist4MPsvURCqkOhAFqTSvGNkrhmx1pZOoi7yDSrljyp',
+    'security.protocol': 'sasl_ssl',
+    'sasl.mechanisms': 'PLAIN'
+  });
+
+  return new Promise((resolve, reject) => {
+    adminClient.createTopic({
+      topic: topic, // user account
+      num_partitions: 1,
+      replication_factor: 3
+    }, (err) => {
+      if (!err) {
+        console.log(`Created topic ${topic}`);
+        return resolve(topic);
+      }
+
+      if (err.code === ERR_TOPIC_ALREADY_EXISTS) {
+        return resolve(topic);
+      }
+
+      return reject(err);
+    });
+  });
+}
+
+export { createProducer, createConsumer, ensureTopicExists }
