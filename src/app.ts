@@ -2,7 +2,6 @@ import cors from 'cors';
 import * as express from 'express';
 import passport from 'passport';
 import path from 'path';
-import errorMiddleware from './middleware/error.middleware';
 import './utils/jwt.utils';
 import routes from './routes';
 
@@ -15,7 +14,5 @@ app.use(passport.initialize());
 app.use(express.json());
 app.use(cors({ origin: true }));
 app.use('/', routes);
-
-app.use('/', errorMiddleware);
 
 export default app;
