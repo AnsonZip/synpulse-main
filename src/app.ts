@@ -22,7 +22,19 @@ const options = {
       }
     ]
   },
-  apis: ['./src/routes/*.routes.ts']
+  apis: ['./src/routes/*.routes.ts'],
+  components: {
+    securitySchemas: {
+      bearerAuth: {
+        type: 'http',
+        schema: 'bearer',
+        bearerFormat: 'JWT'
+      }
+    }
+  },
+  security: {
+    bearerAuth: []
+  }
 };
 const openapiSpecification = swaggerJsdoc(options);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openapiSpecification));

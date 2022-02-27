@@ -21,6 +21,8 @@ router.get('/ping', transactionController.healthCheck);
  * /producer:
  *   post:
  *     description: Create producer and cast transactions to topic base on user identity and currency
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Returns a success message.
@@ -48,6 +50,8 @@ router.post('/producer', auth, transactionController.producer);
  * /consume:
  *   post:
  *     description: Create consumer and get transactions base on user identity and currency
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Returns transaction list.
