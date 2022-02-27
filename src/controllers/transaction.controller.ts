@@ -4,6 +4,7 @@ import { createProducer, createConsumer, ensureTopicExists } from '../utils/kafk
 import { getRandomInt } from '../utils/helper';
 import { v4 as uuidv4 } from 'uuid';
 import uniqid from 'uniqid';
+import Transaction from '../models/transaction.model';
 
 export default class TransactionController {
   public producer = async (req: Request, res: Response, next: NextFunction) => {
@@ -24,15 +25,17 @@ export default class TransactionController {
           }
         });
 
-        for (let idx = 0; idx < 100; ++idx) {
+        for (let idx = 0; idx < 1000; ++idx) {
           const key = uniqid();
-          const value = Buffer.from(JSON.stringify({
+          const transaction = new Transaction({
             identifier: uuidv4(),
+            currency: currency,
             amount: getRandomInt(-500, 1000),
             iban: 'CH93-0000-0000-0000-0000-0',
             date: new Date().toISOString().slice(0, 10),
             description: `Online Banking ${currency}`
-          }));
+          })
+          const value = Buffer.from(JSON.stringify(transaction));
 
           console.log(`Producing record ${key}\t${value}`);
 
@@ -67,15 +70,9 @@ export default class TransactionController {
       let transactions: any[] = [];
       const consumer = await createConsumer(({ key, value, partition, offset }: any) => {
         const msgValue = JSON.parse(value);
-        transactions.push({
-          id: key.toString(),
-          identifer: msgValue.identifer,
-          amount: msgValue.amount,
-          iban: msgValue.iban,
-          date: msgValue.date,
-          description: msgValue.description
-        });
-        
+
+        transactions.push(new Transaction({ ...msgValue, id: key.toString() }));
+
         console.log(`Consumed record with key ${key} and value ${value} of partition ${partition} @ offset ${offset}. Updated total count to ${++seen}`);
       });
 
