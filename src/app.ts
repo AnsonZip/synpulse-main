@@ -12,11 +12,17 @@ const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Hello World',
+      title: 'Synpulse Backend Test',
       version: '1.0.0',
     },
+    servers: [
+      {
+        url: 'http://localhost:8080',
+        description: 'Development Server'
+      }
+    ]
   },
-  apis: ['./src/routes/*.routes.ts'], // files containing annotations as above
+  apis: ['./src/routes/*.routes.ts']
 };
 const openapiSpecification = swaggerJsdoc(options);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openapiSpecification));
