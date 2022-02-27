@@ -3,8 +3,23 @@ import * as express from 'express';
 import passport from 'passport';
 import './utils/jwt.utils';
 import routes from './routes';
+import swaggerJsdoc from 'swagger-jsdoc';
 
 const app = express.default();
+import swaggerUi from 'swagger-ui-express';
+
+const options = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Hello World',
+      version: '1.0.0',
+    },
+  },
+  apis: ['./src/routes/*.routes.ts'], // files containing annotations as above
+};
+const openapiSpecification = swaggerJsdoc(options);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openapiSpecification));
 
 app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
