@@ -5,6 +5,7 @@ import { getRandomInt } from '../utils/helper';
 import { v4 as uuidv4 } from 'uuid';
 import uniqid from 'uniqid';
 import Transaction from '../models/transaction.model';
+import CurrencyTransaction from '../models/currencyTransaction.model';
 import { currencyList } from '../config/dev.config';
 
 export default class TransactionController {
@@ -83,7 +84,25 @@ export default class TransactionController {
       });
 
       return setInterval(() => {
-        res.status(200).send({ msg: 'success', numOfRecords: seen, data: transactions });
+        let currencyTransactions: CurrencyTransaction[] = [];
+        currencyList.map(currency => {
+          let amount = 0;
+          let currencyTransaction = transactions.filter(t => t.currency === currency);
+          currencyTransaction.forEach(t => {
+            amount += t.amount;
+          });
+
+          let transactionList = new CurrencyTransaction({
+            currency: currency,
+            amount: amount,
+            transactions: currencyTransaction
+          });
+
+          currencyTransactions.push(transactionList);
+        });
+
+
+        return res.status(200).send({ msg: 'success', numOfRecords: seen, data: currencyTransactions });
       }, 2000);
     } catch (err) {
       return res.status(500).send(err);

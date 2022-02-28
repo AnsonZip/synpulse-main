@@ -80,27 +80,39 @@ router.post('/producer', auth, transactionController.producer);
  *                    items:
  *                      type: object
  *                      properties:
- *                        id: 
- *                          type: string
- *                          description: key of the record
- *                        identifier:
- *                          type: string
- *                          description: Unique identifier
  *                        currency:
  *                          type: string
- *                          description: Currency of the transaction
+ *                          description: Currency of the account
  *                        amount:
  *                          type: number
- *                          description: Amount of the transaction
- *                        iban:
- *                          type: string
- *                          description: Account IBAN
- *                        date:
- *                          type: string
- *                          description: Date of transaction
- *                        description:
- *                          type: string
- *                          description: Description of transaction
+ *                          description: Total amount of the currency account
+ *                        transactions:
+ *                          type: array
+ *                          description: transactions under this currency account
+ *                          items:
+ *                              type: object
+ *                              properties:
+ *                                id: 
+ *                                  type: string
+ *                                  description: key of the record
+ *                                identifier:
+ *                                  type: string
+ *                                  description: Unique identifier
+ *                                currency:
+ *                                  type: string
+ *                                  description: Currency of the transaction
+ *                                amount:
+ *                                  type: number
+ *                                  description: Amount of the transaction
+ *                                iban:
+ *                                  type: string
+ *                                  description: Account IBAN
+ *                                date:
+ *                                  type: string
+ *                                  description: Date of transaction
+ *                                description:
+ *                                  type: string
+ *                                  description: Description of transaction
  */
 router.post('/consume', auth, transactionController.consume);
 
