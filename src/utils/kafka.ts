@@ -1,15 +1,6 @@
 import Kafka from 'node-rdkafka';
 import { kafkaConfig } from '../config/dev.config';
 
-export default class KafkaHelper {
-
-  // public kafkaConfig: any;
-
-  // constructor(config: object) {
-  //   this.kafkaConfig = config;
-  // }
-}
-
 const ERR_TOPIC_ALREADY_EXISTS = 36;
 
 function createProducer(onDeliveryReport: any): Promise<Kafka.Producer> {
