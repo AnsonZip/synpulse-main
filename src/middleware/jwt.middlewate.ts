@@ -1,6 +1,7 @@
 import passport from 'passport';
 import { Request, Response, NextFunction } from 'express';
 import { IJWTPayloadModel } from '../models/interfaces/common.interface';
+import Logger from '../utils/logger';
 
 async function auth(req: Request, res: Response, next: NextFunction) {
   let execAuth = (req: Request, res: Response): Promise<IJWTPayloadModel> => {
@@ -28,9 +29,11 @@ async function auth(req: Request, res: Response, next: NextFunction) {
       }
     }
 
+    Logger.loggerInstance.error({ msg: 'not authenticated' });
     return res.status(403).json({ msg: 'not authenticated' });
   }
   catch (err) {
+    Logger.loggerInstance.error(err);
     return res.status(403).json({ msg: 'not authenticated' });
   }
 }

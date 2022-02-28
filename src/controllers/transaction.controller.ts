@@ -7,6 +7,7 @@ import uniqid from 'uniqid';
 import Transaction from '../models/transaction.model';
 import CurrencyTransaction from '../models/currencyTransaction.model';
 import { currencyList } from '../config/dev.config';
+import Logger from '../utils/logger';
 
 export default class TransactionController {
   public producer = async (req: Request, res: Response, next: NextFunction) => {
@@ -53,7 +54,7 @@ export default class TransactionController {
 
       return res.status(200).send({ msg: 'success' });
     } catch (err) {
-      console.log('err', err)
+      Logger.loggerInstance.error(err);
       return res.status(500).send(err);
     }
   }
@@ -105,6 +106,7 @@ export default class TransactionController {
         return res.status(200).send({ msg: 'success', numOfRecords: seen, data: currencyTransactions });
       }, 2000);
     } catch (err) {
+      Logger.loggerInstance.error(err);
       return res.status(500).send(err);
     }
   }

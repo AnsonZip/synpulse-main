@@ -4,6 +4,7 @@ import passport from 'passport';
 import './utils/jwt.utils';
 import routes from './routes';
 import swaggerJsdoc from 'swagger-jsdoc';
+import Logger from './utils/logger';
 
 const app = express.default();
 import swaggerUi from 'swagger-ui-express';
@@ -44,5 +45,12 @@ app.use(passport.initialize());
 app.use(express.json());
 app.use(cors({ origin: true }));
 app.use('/', routes);
+app.use((err: any, req: any, res: any, next: any) => {
+  Logger.loggerInstance.error({
+    id: req.id,
+    err,
+  }, 'error');
+  res.status(500).send(`Trace ID: ${req.id}`);
+});
 
 export default app;
