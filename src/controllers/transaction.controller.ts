@@ -1,58 +1,52 @@
 import { NextFunction } from 'connect';
 import { Request, Response } from 'express';
 import { createProducer, createConsumer, ensureTopicExists } from '../utils/kafka';
-import { getRandomInt } from '../utils/helper';
-import { v4 as uuidv4 } from 'uuid';
-import uniqid from 'uniqid';
+import { genTransaction } from '../utils/helper';
 import Transaction from '../models/transaction.model';
 import CurrencyTransaction from '../models/currencyTransaction.model';
+import ProducerBody from '../models/producerBody.model';
 import { currencyList } from '../config/dev.config';
 import Logger from '../utils/logger';
+import { toValidate } from '../utils/validator';
+import { DeliveryReport, LibrdKafkaError } from 'node-rdkafka';
 
 export default class TransactionController {
   public producer = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const topic = req.cookies.identity;
-      const promises = currencyList.map(async (currency) => {
-        const currencyAccount = `${topic}_${currency}`;
-        await ensureTopicExists(currencyAccount);
+      // verify req body
+      const body = new ProducerBody(req.body);
+      const errMsg = await toValidate(body);
+      if (errMsg.length > 0) {
+        throw (errMsg);
+      }
 
-        const producer = await createProducer((err: any, report: any) => {
-          if (err) {
-            console.warn('Error producing', err)
-          } else {
-            const { topic, partition, value } = report;
-            console.log(`Successfully produced record to topic '${topic}' partition ${partition} ${value}`);
-          }
-        });
+      const identity = req.cookies.identity;
+      const currencyAccount = `${identity}_${body.currency}`;
+      await ensureTopicExists(currencyAccount);
 
-        for (let idx = 0; idx < 1000; ++idx) {
-          const key = uniqid();
-          const transaction = new Transaction({
-            identifier: uuidv4(),
-            currency: currency,
-            amount: getRandomInt(-500, 1000),
-            iban: 'CH93-0000-0000-0000-0000-0',
-            date: new Date().toISOString().slice(0, 10),
-            description: `Online Banking ${currency}`
-          })
-          const value = Buffer.from(JSON.stringify(transaction));
-
-          console.log(`Producing record ${key}\t${value}`);
-
-          producer.produce(currencyAccount, -1, value, key);
+      const producer = await createProducer((err: LibrdKafkaError, report: DeliveryReport) => {
+        if (err) {
+          console.warn('Error producing', err);
+          throw (err);
+        } else {
+          const { topic, partition, value } = report;
+          console.log(`Successfully produced record to topic '${topic}' partition ${partition} ${value}`);
         }
-
-        producer.flush(10000, () => {
-          producer.disconnect();
-        });
-
-        return;
       });
 
-      await Promise.all(promises);
+      for (let idx = 0; idx < body.numberOfTransactions; ++idx) {
+        const t = genTransaction(body.currency);
+        producer.produce(currencyAccount, -1, t.value, t.key);
+      }
 
-      return res.status(200).send({ msg: 'success' });
+      producer.flush(10000, () => {
+        producer.disconnect();
+      });
+
+      return res.status(200).json({
+        msg: 'success',
+        numberOfTransactions: body.numberOfTransactions
+      });
     } catch (err) {
       Logger.loggerInstance.error(err);
       return res.status(500).send(err);
@@ -103,7 +97,7 @@ export default class TransactionController {
         });
 
 
-        return res.status(200).send({ msg: 'success', numOfRecords: seen, data: currencyTransactions });
+        return res.status(200).json({ msg: 'success', numOfRecords: seen, data: currencyTransactions });
       }, 2000);
     } catch (err) {
       Logger.loggerInstance.error(err);
@@ -112,7 +106,11 @@ export default class TransactionController {
   }
 
   public healthCheck = async (req: Request, res: Response, next: NextFunction) => {
-    res.status(200).send({ msg: 'pong' });
-    return;
+    try {
+      return res.status(200).json({ msg: 'pong' });
+    } catch (err) {
+      Logger.loggerInstance.error(err);
+      return res.status(500).send(err);
+    }
   }
 }

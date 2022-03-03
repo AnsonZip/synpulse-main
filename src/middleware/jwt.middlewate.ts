@@ -6,7 +6,7 @@ import Logger from '../utils/logger';
 async function auth(req: Request, res: Response, next: NextFunction) {
   let execAuth = (req: Request, res: Response): Promise<IJWTPayloadModel> => {
     return new Promise((resolve, reject) => {
-      passport.authenticate('authenicate', (err, jwt_payload: any) => {
+      passport.authenticate('authenicate', (err, jwt_payload: IJWTPayloadModel) => {
         if (err) {
           return reject(new Error(err));
         }

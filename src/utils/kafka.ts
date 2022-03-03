@@ -18,9 +18,9 @@ function createProducer(onDeliveryReport: any): Promise<Kafka.Producer> {
       .on('ready', () => resolve(producer))
       .on('delivery-report', onDeliveryReport)
       .on('event.error', (err) => {
-        console.warn('event.error', err);
         reject(err);
       });
+      
     producer.connect();
   });
 }
