@@ -4,7 +4,7 @@ import { createProducer, createConsumer, ensureTopicExists } from '../utils/kafk
 import { genTransaction } from '../utils/helper';
 import Transaction from '../models/transaction.model';
 import CurrencyTransaction from '../models/currencyTransaction.model';
-import ProducerBody from '../models/producerBody.model';
+import RequestBody from '../models/requestBody.model';
 import { currencyList } from '../config/dev.config';
 import Logger from '../utils/logger';
 import { toValidate } from '../utils/validator';
@@ -14,7 +14,7 @@ export default class TransactionController {
   public producer = async (req: Request, res: Response, next: NextFunction) => {
     try {
       // verify req body
-      const body = new ProducerBody(req.body);
+      const body = new RequestBody(req.body);
       const errMsg = await toValidate(body);
       if (errMsg.length > 0) {
         throw (errMsg);
@@ -55,6 +55,13 @@ export default class TransactionController {
 
   public consume = async (req: Request, res: Response, next: NextFunction) => {
     try {
+      // verify req body
+      const body = new RequestBody(req.body);
+      const errMsg = await toValidate(body);
+      if (errMsg.length > 0) {
+        throw (errMsg);
+      }
+      
       const identity = req.cookies.identity;
       const currencyAccounts = currencyList.map(currency => {
         return `${identity}_${currency}`;

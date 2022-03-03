@@ -1,8 +1,8 @@
-import IProducerBody from './interfaces/producerBody.interface';
+import IRequestBody from './interfaces/requestBody.interface';
 import { IsInt, Min, IsString, IsIn, IsNotEmpty } from 'class-validator';
 import { currencyList } from '../config/dev.config';
 
-export default class ProducerBody implements IProducerBody {
+export default class RequestBody implements IRequestBody {
   @IsNotEmpty()
   @IsString()
   @IsIn(currencyList)
@@ -12,7 +12,7 @@ export default class ProducerBody implements IProducerBody {
   @Min(0)
   public numberOfTransactions: number;
 
-  constructor(data: ProducerBody) {
+  constructor(data: RequestBody) {
     this.currency = data.currency;
     
     this.numberOfTransactions = data.numberOfTransactions;
