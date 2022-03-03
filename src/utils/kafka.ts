@@ -25,7 +25,7 @@ function createProducer(onDeliveryReport: any): Promise<Kafka.Producer> {
   });
 }
 
-function createConsumer(onData: any): Promise<Kafka.KafkaConsumer> {
+function createConsumer(): Promise<Kafka.KafkaConsumer> {
   const consumer = new Kafka.KafkaConsumer({
     'bootstrap.servers': kafkaConfig.servers,
     'sasl.username': kafkaConfig.username,
@@ -38,10 +38,7 @@ function createConsumer(onData: any): Promise<Kafka.KafkaConsumer> {
   });
 
   return new Promise((resolve, reject) => {
-    consumer
-      .on('ready', () => resolve(consumer))
-      .on('data', onData);
-
+    consumer.on('ready', () => resolve(consumer));
     consumer.connect();
   });
 }

@@ -3,12 +3,10 @@ import { Request, Response } from 'express';
 import { createProducer, createConsumer, ensureTopicExists } from '../utils/kafka';
 import { genTransaction } from '../utils/helper';
 import Transaction from '../models/transaction.model';
-import CurrencyTransaction from '../models/currencyTransaction.model';
 import RequestBody from '../models/requestBody.model';
-import { currencyList } from '../config/dev.config';
 import Logger from '../utils/logger';
 import { toValidate } from '../utils/validator';
-import { DeliveryReport, LibrdKafkaError } from 'node-rdkafka';
+import { DeliveryReport, LibrdKafkaError, Message } from 'node-rdkafka';
 
 export default class TransactionController {
   public producer = async (req: Request, res: Response, next: NextFunction) => {
@@ -61,50 +59,40 @@ export default class TransactionController {
       if (errMsg.length > 0) {
         throw (errMsg);
       }
-      
+
       const identity = req.cookies.identity;
-      const currencyAccounts = currencyList.map(currency => {
-        return `${identity}_${currency}`;
+      const currencyAccount = `${identity}_${body.currency}`;
+
+      let transactions: Transaction[] = [];
+      const consumer = await createConsumer();
+
+      consumer.on('data', ({ key, value, partition, offset }: Message) => {
+        const msgValue = JSON.parse(value as any);
+
+        transactions.push(new Transaction({
+          ...msgValue,
+          id: key?.toString()
+        }));
       });
 
-      let seen = 0;
-      let transactions: any[] = [];
-      const consumer = await createConsumer(({ key, value, partition, offset }: any) => {
-        const msgValue = JSON.parse(value);
+      consumer.subscribe([currencyAccount]);
+      consumer.consume(body.numberOfTransactions);
 
-        transactions.push(new Transaction({ ...msgValue, id: key.toString() }));
-
-        console.log(`Consumed record with key ${key} and value ${value} of partition ${partition} @ offset ${offset}. Updated total count to ${++seen}`);
-      });
-
-      consumer.subscribe(currencyAccounts);
-      consumer.consume();
-
-      process.on('SIGINT', () => {
-        console.log('\nDisconnecting consumer ...');
-        consumer.disconnect();
-      });
-
-      return setInterval(() => {
-        let currencyTransactions: CurrencyTransaction[] = [];
-        currencyList.map(currency => {
-          let amount = 0;
-          let currencyTransaction = transactions.filter(t => t.currency === currency);
-          currencyTransaction.forEach(t => {
-            amount += t.amount;
-          });
-
-          let transactionList = new CurrencyTransaction({
-            currency: currency,
-            amount: amount,
-            transactions: currencyTransaction
-          });
-
-          currencyTransactions.push(transactionList);
+      return setTimeout(() => {
+        let totalAmount = 0;
+        transactions.forEach(t => {
+          totalAmount += t.amount;
         });
 
+        consumer.disconnect();
 
-        return res.status(200).json({ msg: 'success', numOfRecords: seen, data: currencyTransactions });
+        return res.status(200).send({
+          msg: 'success',
+          numberOfTransactions: transactions.length,
+          currency: body.currency,
+          totalAmount: totalAmount,
+          transactions: transactions
+        });
       }, 2000);
     } catch (err) {
       Logger.loggerInstance.error(err);
