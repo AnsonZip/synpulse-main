@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transactionApi
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: transactionApi
+  template:
+    metadata:
+      labels:
+        app: transactionApi
+        tier: backend
+    spec:
+      containers:
+        - name: app
+          image: ansoncheungbk/synpulse-test:v1.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+        imagePullSecrets:
+        - name: docker-hub

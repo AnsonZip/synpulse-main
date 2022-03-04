@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: transactionApi
+spec:
+  ports:
+    - name: app
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+  selector:
+    app: transactionApi
+    tier: backend
