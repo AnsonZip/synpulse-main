@@ -3,10 +3,10 @@ KUBECTL ?= kubectl
 
 # Docker related commands
 up: build-app
-	$(DOCKER) run -dp 8080:8080 demo
+	$(DOCKER) run -dp 8080:8080 synpulse-test
 
 build: 
-	$(DOCKER) build -t demo .
+	$(DOCKER) build -t synpulse-test .
 
 # Kubernetes related commands
 kube-build:

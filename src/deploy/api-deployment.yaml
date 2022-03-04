@@ -1,0 +1,18 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: synpulse-test
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: synpulse-test
+        tier: backend
+    spec:
+      containers:
+        - name: app
+          image: synpulse-test:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
