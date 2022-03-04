@@ -67,7 +67,8 @@ export default class TransactionController {
       const consumer = await createConsumer();
 
       consumer.on('data', ({ key, value, partition, offset }: Message) => {
-        const msgValue = JSON.parse(value as any);
+        let stringValue = value ? value.toString() : '';
+        const msgValue = JSON.parse(stringValue);
 
         transactions.push(new Transaction({
           ...msgValue,
