@@ -13,6 +13,13 @@ const router: Router = Router();
  *     responses:
  *       200:
  *         description: Returns a pong string.
+ *         content:
+ *            application/json:
+ *              schema:
+ *                type: object
+ *                properties:
+ *                  msg:
+ *                    type: string
  */
 router.get('/ping', transactionController.healthCheck);
 
@@ -33,6 +40,8 @@ router.get('/ping', transactionController.healthCheck);
  *                properties:
  *                  msg:
  *                    type: string
+ *                  numberOfTransactions:
+ *                    type: number
  *       403:
  *         description: Unauthorized.
  *         content:
@@ -62,6 +71,42 @@ router.post('/producer', auth, transactionController.producer);
  *                properties:
  *                  msg:
  *                    type: string
+ *                  numOfTransactions:
+ *                    type: number
+ *                    description: number of record that consumer received
+ *                  currency:
+ *                    type: string
+ *                    description: currency of the account
+ *                  totalAmount:
+ *                    type: number
+ *                    description: total amount of the currency account
+ *                  transactions:
+ *                    type: array
+ *                    description: transactions that consumer received
+ *                    items:
+ *                      type: object
+ *                      properties:
+ *                        id:
+ *                          type: string
+ *                          description: key of the record
+ *                        identifier:
+ *                          type: string
+ *                          description: Unique identifier
+ *                        currency:
+ *                          type: string
+ *                          description: Currency of the transaction
+ *                        amount:
+ *                          type: number
+ *                          description: Amount of the transaction
+ *                        iban:
+ *                          type: string
+ *                          description: Account IBAN
+ *                        date:
+ *                          type: string
+ *                          description: Date of transaction
+ *                        description:
+ *                          type: string
+ *                          description: Description of transaction
  *       403:
  *         description: Unauthorized.
  *         content:
@@ -71,48 +116,6 @@ router.post('/producer', auth, transactionController.producer);
  *                properties:
  *                  msg:
  *                    type: string
- *                  numOfRecords:
- *                    type: number
- *                    description: number of record that consumer received
- *                  data:
- *                    type: array
- *                    description: transactions that consumer received
- *                    items:
- *                      type: object
- *                      properties:
- *                        currency:
- *                          type: string
- *                          description: Currency of the account
- *                        amount:
- *                          type: number
- *                          description: Total amount of the currency account
- *                        transactions:
- *                          type: array
- *                          description: transactions under this currency account
- *                          items:
- *                              type: object
- *                              properties:
- *                                id: 
- *                                  type: string
- *                                  description: key of the record
- *                                identifier:
- *                                  type: string
- *                                  description: Unique identifier
- *                                currency:
- *                                  type: string
- *                                  description: Currency of the transaction
- *                                amount:
- *                                  type: number
- *                                  description: Amount of the transaction
- *                                iban:
- *                                  type: string
- *                                  description: Account IBAN
- *                                date:
- *                                  type: string
- *                                  description: Date of transaction
- *                                description:
- *                                  type: string
- *                                  description: Description of transaction
  */
 router.post('/consume', auth, transactionController.consume);
 
