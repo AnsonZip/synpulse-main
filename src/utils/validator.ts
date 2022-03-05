@@ -7,7 +7,7 @@ export async function toValidate(body: any): Promise<ValidateError[]> {
     if (errors.length > 0) {
       let errMsg: ValidateError[] = [];
       errors.forEach(error => {
-        console.log(error);
+        // console.log(error);
         const err = {
           field: error.property,
           msg: Object.values(error.constraints as object)

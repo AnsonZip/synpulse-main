@@ -33,8 +33,8 @@ export default class TransactionController {
       });
 
       for (let idx = 0; idx < body.numberOfTransactions; ++idx) {
-        const t = genTransaction(body.currency);
-        producer.produce(currencyAccount, -1, t.value, t.key);
+        const transaction = genTransaction(body.currency);
+        producer.produce(currencyAccount, -1, Buffer.from(JSON.stringify(transaction.value)), transaction.key);
       }
 
       producer.flush(10000, () => {

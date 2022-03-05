@@ -11,7 +11,7 @@ function getRandomInt(min: number, max: number) {
 function genTransaction(currency: string) {
   const key = uniqid();
 
-  const transaction = new Transaction({
+  const value = new Transaction({
     identifier: uuidv4(),
     currency: currency,
     amount: getRandomInt(-500, 1000),
@@ -19,9 +19,8 @@ function genTransaction(currency: string) {
     date: new Date().toISOString().slice(0, 10),
     description: `Online Banking ${currency}`
   })
-  const value = Buffer.from(JSON.stringify(transaction));
 
-  return { value, key };
+  return { key, value };
 }
 
 export { getRandomInt, genTransaction }
