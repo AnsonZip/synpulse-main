@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: transactionApi
+  name: transactionapi
 spec:
   ports:
     - name: app
@@ -9,5 +9,5 @@ spec:
       port: 8080
       targetPort: 8080
   selector:
-    app: transactionApi
+    app: transactionapi
     tier: backend

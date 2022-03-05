@@ -1,20 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: transactionapi
+  name: synpulse-test-deployment
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: transactionapi
+      app: nodejs
   template:
     metadata:
       labels:
-        app: transactionapi
-        tier: backend
+        app: nodejs
     spec:
       containers:
-      - name: app
+      - name: node
         image: ansoncheungbk/synpulse-test:v1.1
         imagePullPolicy: Always
         ports:

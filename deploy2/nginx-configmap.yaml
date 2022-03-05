@@ -5,7 +5,7 @@ data:
     upstream backend {
       # DNS SRV is only supported by nginx-plus :(
       # server app-service.default service=_app._tcp resolve max_fails=0;
-      server transactionApi.default:3000 max_fails=0;
+      server transactionapi.default:3000 max_fails=0;
     }
 
     server {
