@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: synpulse-test-deployment
+  name: test-server
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: nodejs
+      app: test-server
   template:
     metadata:
       labels:
-        app: nodejs
+        app: test-server
     spec:
       containers:
-      - name: node
-        image: ansoncheungbk/synpulse-test:v1.1
+      - name: test-server
+        image: ansoncheungbk/synpulse-test:v1.2
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
