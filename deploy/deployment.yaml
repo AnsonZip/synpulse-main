@@ -14,7 +14,8 @@ spec:
     spec:
       containers:
       - name: test-server
-        image: ansoncheungbk/synpulse-test:v1.2
+        # image: ansoncheungbk/synpulse-test:v1.2
+        image: /var/lib/docker/nodeserver
         imagePullPolicy: Always
         ports:
         - containerPort: 8080

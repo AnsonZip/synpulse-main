@@ -2,11 +2,12 @@ DOCKER ?= docker
 KUBECTL ?= kubectl
 
 # Docker related commands
-up: build-app
-	$(DOCKER) run -dp 8080:8080 synpulse-test
+up: 
+	make build
+	$(DOCKER) run -dp 8080:8080 nodeserver
 
 build: 
-	$(DOCKER) build -t synpulse-test .
+	$(DOCKER) build -t nodeserver .
 
 # Kubernetes related commands
 kube-build:
@@ -15,10 +16,12 @@ kube-build:
 	make build
 
 kube-deploy:
-	set -euo pipefail
-	eval $(minikube docker-env)
 	$(KUBECTL) apply -f deploy/
 	minikube service --url test-server
+
+kube-full-deploy:
+	make kube-build
+	make kube-deploy
 
 kube-delete:
 	$(KUBECTL) delete -f deploy/
