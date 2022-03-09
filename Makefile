@@ -26,4 +26,4 @@ kube-delete:
 	$(KUBECTL) delete -f deploy/
 	
 
-.PHONY: up, build, kube-build, kube-deploy, kube-delete
+.PHONY: up, build, kube-build, kube-deploy, kube-full-deploy, kube-delete
