@@ -7,12 +7,11 @@ up:
 	$(DOCKER) run -dp 8080:8080 nodeserver
 
 build: 
+	eval $(minikube docker-env)
 	$(DOCKER) build -t nodeserver .
 
 # Kubernetes related commands
 kube-build:
-	set -euo pipefail
-	eval $(minikube docker-env)
 	make build
 
 kube-deploy:

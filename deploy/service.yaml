@@ -7,6 +7,7 @@ spec:
     app: test-server
   ports:
     - protocol: TCP
+      nodePort: 32675
       port: 8080
       targetPort: 8080
   type: LoadBalancer

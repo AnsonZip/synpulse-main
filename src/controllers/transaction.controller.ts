@@ -81,9 +81,9 @@ export default class TransactionController {
 
       return setTimeout(() => {
         let totalAmount = 0;
-        transactions.forEach(t => {
+        for (const t of transactions) {
           totalAmount += t.amount;
-        });
+        };
 
         consumer.disconnect();
 

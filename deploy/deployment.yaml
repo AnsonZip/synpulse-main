@@ -14,10 +14,15 @@ spec:
     spec:
       containers:
       - name: test-server
-        # image: ansoncheungbk/synpulse-test:v1.2
-        image: /var/lib/docker/nodeserver
-        imagePullPolicy: Always
+        image: nodeserver
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
-      imagePullSecrets:
-      - name: docker-hub
+      # containers:
+      # - name: test-server
+      #   image: ansoncheungbk/synpulse-test:v1.2
+      #   imagePullPolicy: Always
+      #   ports:
+      #   - containerPort: 8080
+      # imagePullSecrets:
+      # - name: docker-hub
